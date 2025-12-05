@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Boy on the Fly - Endless runner volador pixel art. ¡Mateo vuela para recuperar a su halcón Zeus!">
+    <meta property="og:title" content="Boy on the Fly - Página Oficial">
+    <meta property="og:description" content="¡Mateo vuela para recuperar a su halcón Zeus! Juego pixel art hecho con amor.">
+    <meta property="og:image" content="img/banner.png">
+    <link rel="icon" href="img/logo.png" type="image/png">
+    <title>Boy on the Fly - Página Oficial</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            font-family:'Courier New',monospace;
+            background:#87CEEB;
+            color:#1a1a1a;
+            overflow-x:hidden;
+        }
+        nav{
+            position:fixed;width:100%;background:rgba(31,41,55,0.95);
+            backdrop-filter:blur(10px);z-index:1000;
+            border-bottom:4px solid #000;box-shadow:0 4px 6px rgba(0,0,0,0.3);
+        }
+        .nav-container{
+            max-width:1200px;margin:0 auto;padding:0 20px;
+            display:flex;justify-content:space-between;align-items:center;height:70px;
+        }
+        .logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+        .logo-frame{
+            width:56px;height:56px;border:4px solid #000;background:#ff8c00;
+            overflow:hidden;display:flex;align-items:center;justify-content:center;
+            image-rendering:pixelated;
+        }
+        .logo-img{width:100%;height:100%;object-fit:cover;image-rendering:pixelated}
+        .logo-text{
+            font-size:24px;font-weight:bold;color:#ff8c00;letter-spacing:2px;
+            text-decoration:none;text-shadow:3px 3px 0 #000;
+            transition:all .3s ease;
+        }
+        .logo-text:hover{color:#ffaa33;transform:translateY(-2px)}
+        .nav-links{display:flex;gap:24px;list-style:none}
+        .nav-links a{
+            color:white;text-decoration:none;font-weight:bold;font-size:14px;
+            letter-spacing:1px;padding:8px 12px;border:2px solid transparent;
+            transition:all .3s;
+        }
+        .nav-links a:hover{color:#ff8c00;border-color:#ff8c00}
+        .menu-toggle{
+            display:none;background:none;border:none;color:white;
+            font-size:28px;cursor:pointer;
+        }
+
+        /* Hero */
+        .hero{
+            min-height:100vh;display:flex;align-items:center;justify-content:center;
+            position:relative;overflow:hidden;padding-top:70px;
+            background:linear-gradient(to bottom,#87CEEB,#5a9fd4,#4682b4);
+        }
+        .cloud{
+            position:absolute;background:white;border-radius:50%;opacity:.85;
+            box-shadow:0 8px 32px rgba(0,0,0,0.1);
+        }
+        .cloud::before,.cloud::after{content:"";position:absolute;background:white;border-radius:50%}
+        .cloud-1{width:200px;height:80px;top:80px;left:-100px;animation:drift 80s linear infinite}
+        .cloud-1::before{width:100px;height:100px;top:-50px;left:30px}
+        .cloud-1::after{width:120px;height:80px;top:-30px;right:20px}
+        .cloud-2{width:160px;height:70px;top:140px;right:-120px;animation:drift 100s linear infinite}
+        .cloud-2::before{width:90px;height:90px;top:-45px;left:20px}
+        .cloud-2::after{width:100px;height:70px;top:-25px;right:30px}
+        @keyframes drift{from{transform:translateX(-300px)}to{transform:translateX(200vw)}}
+
+        .skyline{
+            position:absolute;bottom:0;left:0;width:100%;height:300px;
+            display:flex;justify-content:center;gap:6px;padding:0 20px;
+            overflow:hidden;pointer-events:none;z-index:1;
+        }
+        .skyline::before{
+            content:"";position:absolute;bottom:0;left:0;right:0;height:80px;
+            background:#1e3a8a;z-index:1;
+        }
+        .building{
+            width:80px;background:#1e40af;border:6px solid #1e3a8a;
+            border-top:none;position:relative;bottom:0;
+        }
+        .building:nth-child(1){height:220px}.building:nth-child(2){height:280px}
+        .building:nth-child(3){height:180px}.building:nth-child(4){height:260px}
+        .building:nth-child(5){height:310px}.building:nth-child(6){height:200px}
+        .building:nth-child(7){height:240px}.building:nth-child(8){height:290px}
+
+        .mateo-floating{
+            position:absolute;bottom:280px;left:50px;width:140px;
+            animation:bounce 2.5s infinite;z-index:10;
+        }
+        .mateo-floating img{
+            width:100%;image-rendering:pixelated;
+            filter:drop-shadow(6px 6px 0px rgba(0,0,0,0.5));
+        }
+        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-35px)}}
+
+        .hero-content{text-align:center;z-index:10;padding:0 20px;max-width:1200px}
+        .hero-title{
+            font-size:120px;font-weight:bold;color:#D2691E;
+            text-shadow:4px 4px 0 #8B4513,8px 8px 0 rgba(0,0,0,0.3);
+            -webkit-text-stroke:3px black;line-height:1;margin-bottom:20px;
+        }
+        .hero-subtitle{
+            font-size:60px;font-weight:bold;color:#D2691E;
+            text-shadow:3px 3px 0 #8B4513,6px 6px 0 rgba(0,0,0,0.3);
+            -webkit-text-stroke:2px black;
+        }
+        .hero-description{
+            font-size:24px;font-weight:bold;color:#1a1a1a;
+            margin:30px 0;letter-spacing:1px;
+        }
+        .hero-buttons{
+            display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:40px;
+        }
+        .btn{
+            padding:16px 32px;font-size:20px;font-weight:bold;letter-spacing:2px;
+            border:4px solid #000;cursor:pointer;transition:all .3s;
+            text-decoration:none;display:inline-block;
+        }
+        .btn-primary{background:#ff8c00;color:#000}
+        .btn-primary:hover{background:#ff7700;transform:scale(1.05)}
+        .btn-secondary{background:#2563eb;color:white}
+        .btn-secondary:hover{background:#1d4ed8;transform:scale(1.05)}
+        .btn-download{
+            background:#10b981;color:white;font-size:24px;padding:20px 40px;
+        }
+        .btn-download:hover{background:#059669;transform:scale(1.07)}
+
+        section{padding:100px 20px;position:relative}
+        .container{max-width:1200px;margin:0 auto}
+        .section-title-wrapper{text-align:center;margin-bottom:60px}
+        .section-title{
+            font-size:60px;font-weight:bold;color:#1a1a1a;
+            border:8px solid #000;display:inline-block;padding:20px 40px;
+            background:white;letter-spacing:2px;
+        }
+
+        .story-section,.game-section{background:linear-gradient(to bottom,#4682b4,#a78bfa,#f9a8d4)}
+        .characters-section{background:linear-gradient(to bottom,#fef08a,#fdba74,#ef4444)}
+        .gallery-section{background:linear-gradient(to bottom,#f9a8d4,#fdba74,#fef08a);padding:120px 20px}
+        .demo-section{background:linear-gradient(to bottom,#ef4444,#a855f7,#4f46e5)}
+        .credits-section{background:#f3f4f6;padding:120px 20px 140px}
+
+        .story-card,.game-card,.character-card,.credit-card{
+            background:white;border:4px solid #000;padding:28px;
+            box-shadow:8px 8px 0 rgba(0,0,0,0.3);
+        }
+        .characters-grid,.game-grid,.credits-grid{
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:32px;
+        }
+        .character-image-box{
+            width:128px;height:128px;border:4px solid #000;background:#87CEEB;
+            margin:0 auto 24px;display:flex;align-items:center;justify-content:center;
+            overflow:hidden;image-rendering:pixelated;
+        }
+        .character-img{max-width:100%;max-height:100%;image-rendering:pixelated}
+        .character-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+        .tag{padding:8px 12px;border:2px solid #000;font-weight:bold;background:#fdba74;font-size:14px}
+
+        .gallery-grid{
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:40px;
+        }
+        .gallery-item{
+            border:6px solid #000;background:#fff;overflow:hidden;
+            box-shadow:10px 10px 0 rgba(0,0,0,0.3);
+        }
+        .gallery-item img{
+            width:100%;display:block;image-rendering:pixelated;transition:transform .4s ease;
+        }
+        .gallery-item:hover img{transform:scale(1.08)}
+
+        /* Nuevo contenedor que fuerza al marco a envolver 100% al video */
+.video-wrapper {
+    max-width: 960px;
+    margin: 0 auto 50px;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    border: 8px solid #000;
+    box-shadow: 12px 12px 0 rgba(0,0,0,0.4);
+    border-radius: 8px;
+    background: #000;
+}
+
+/* El truco: el video ocupa el 100% del contenedor sin deformarse */
+.video-container video {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 0;
+}
+        .demo-info{text-align:center;font-size:20px;color:white;margin-top:20px}
+        .download-section{text-align:center;margin-top:50px}
+
+        footer{
+            background:#1f2937;color:#9ca3af;text-align:center;
+            padding:50px 20px;border-top:8px solid #000;
+        }
+        .credits-footer{
+            text-align:center;margin-top:40px;font-size:18px;color:#333;
+        }
+
+        @media (max-width:768px){
+            .nav-links{
+                display:none;position:absolute;top:70px;left:0;right:0;
+                background:rgba(17,24,39,0.95);flex-direction:column;padding:20px;
+                border-bottom:4px solid #000;
+            }
+            .nav-links.active{display:flex}
+            .menu-toggle{display:block}
+            .hero-title{font-size:60px}
+            .hero-subtitle{font-size:30px}
+            .section-title{font-size:36px;padding:12px 24px}
+            .mateo-floating{width:100px;bottom:220px;left:20px}
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#home" class="logo">
+                <div class="logo-frame">
+                    <img src="img/logo.png" alt="Logo Boy on the Fly" class="logo-img">
+                </div>
+                <span class="logo-text">BOY ON THE FLY</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home">INICIO</a></li>
+                <li><a href="#story">HISTORIA</a></li>
+                <li><a href="#characters">PERSONAJES</a></li>
+                <li><a href="#game">JUEGO</a></li>
+                <li><a href="#gallery">GALERÍA</a></li>
+                <li><a href="#credits">CRÉDITOS</a></li>
+            </ul>
+            <button class="menu-toggle" id="menuToggle">Menú</button>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section id="home" class="hero">
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="skyline">...</div>
+
+        <div class="mateo-floating">
+            <img src="img/boy.png" alt="Mateo volando">
+        </div>
+
+        <div class="hero-content">
+            <h1 class="hero-title">BOY</h1>
+            <h2 class="hero-subtitle">ON THE</h2>
+            <h1 class="hero-title">FLY</h1>
+            <p class="hero-description">¡Surca los cielos con Mateo y rescata a Zeus en esta aventura!</p>
+            <div class="hero-buttons">
+                <a href="#game" class="btn btn-primary">IR AL JUEGO</a>
+                <a href="#gallery" class="btn btn-secondary">GALERÍA</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Historia -->
+    <section id="story" class="story-section">
+        <div class="container">
+            <div class="section-title-wrapper"><h2 class="section-title">LA HISTORIA</h2></div>
+            <div class="story-card">
+                <p>Mateo, un niño con una imaginación desbordante, compartía un vínculo especial con su halcón, Zeus. Una noche, un misterioso talismán que había encontrado entre sus aventuras se iluminó en su mano mientras dormía, imbuyéndolo de una energía ancestral. A la mañana siguiente, Mateo despertó con una increíble sorpresa: ¡podía volar! La ligereza en su cuerpo le confirmó que sus sueños de surcar los cielos se habían hecho realidad. 
+Emocionado, buscó entre sus juguetes una capa de tela azul para sentirse como un verdadero superhéroe. Se la puso y comenzó a explorar sus nuevos poderes, moviéndose con gracia por su habitación. La euforia era tan grande que giraba y flotaba, riendo de alegría, con su capa ondeando detrás de él. En ese momento, se sentía invencible, dueño del cielo que tanto había soñado. 
+Sin embargo, en uno de sus giros más audaces, Mateo tropezó accidentalmente con la ventana, abriéndola de golpe. El estruendo asustó a Zeus, que descansaba en su percha. Aprovechando la repentina libertad, el halcón se lanzó al aire y desapareció en el horizonte de la ciudad. 
+Ahora, con su nueva habilidad y su capa de superhéroe puesta, la alegría de Mateo se mezcló con la desesperación. Su primer vuelo se había convertido en una misión urgente: debía perseguir a su fiel amigo y recuperar a Zeus, su compañero de aventuras.
+</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Personajes -->
+    <section id="characters" class="characters-section">
+        <div class="container">
+            <div class="section-title-wrapper"><h2 class="section-title">PERSONAJES</h2></div>
+            <div class="characters-grid">
+                <div class="character-card">
+                    <div class="character-image-box">
+                        <img src="img/mateo.png" alt="Mateo - protagonista" class="character-img">
+                    </div>
+                    <h3>MATEO</h3>
+                    <p class="character-role">Protagonista</p>
+                    <p>Un niño soñador que recibe el poder de volar gracias a un talismán mágico. Con su capa azul ondeante, debe recuperar a su mejor amigo Zeus.</p>
+                    <div class="character-tags">
+                        <span class="tag">VALIENTE</span>
+                        <span class="tag">IMAGINATIVO</span>
+                        <span class="tag">LEAL</span>
+                    </div>
+                </div>
+                <div class="character-card">
+                    <div class="character-image-box">
+                        <img src="img/bird.png" alt="Zeus - halcón mascota" class="character-img">
+                    </div>
+                    <h3>ZEUS</h3>
+                    <p class="character-role" style="color:#92400e;">Halcón Mascota</p>
+                    <p>El fiel compañero de Mateo que escapó volando por la ciudad. ¡Sus plumas marcan el camino!</p>
+                    <div class="character-tags">
+                        <span class="tag" style="background:#92400e;color:white;">RÁPIDO</span>
+                        <span class="tag" style="background:#92400e;color:white;">LIBRE</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- El Juego + BOTÓN DE DESCARGA -->
+    <!-- SECCIÓN UNIFICADA: EL JUEGO + GAMEPLAY -->
+<section id="game" class="game-section">
+    <div class="container">
+        <div class="section-title-wrapper">
+            <h2 class="section-title">EL JUEGO</h2>
+        </div>
+
+        <!-- Información del juego -->
+        <div class="game-grid" style="margin-bottom:50px;">
+            <div class="game-card"><h3>GÉNERO</h3><p>Endless Runner Volador<br>(estilo Flappy Bird)</p></div>
+            <div class="game-card"><h3>OBJETIVO</h3><p>Persigue a Zeus, recoge plumas<br>y sobrevive lo máximo posible</p></div>
+            <div class="game-card"><h3>CONTROLES</h3><p><strong>Barra espaciadora</strong> → Volar<br><strong>Enter / Clic</strong> → Menús</p></div>
+        </div>
+
+        <!-- TÍTULO DEL VIDEO -->
+        <div style="text-align:center;margin:50px 0 30px;">
+            <h3 style="
+                font-size:48px;
+                font-weight:bold;
+                color:#000;
+                background:white;
+                display:inline-block;
+                padding:12px 40px;
+                border:8px solid #000;
+                box-shadow:8px 8px 0 rgba(0,0,0,0.3);
+                letter-spacing:2px;
+            ">
+                VIDEO GAMEPLAY
+            </h3>
+        </div>
+
+        <!-- VIDEO CON MARCO QUE SE ADAPTA 100% -->
+        <div class="video-wrapper">
+            <div class="video-container">
+                <video controls poster="img/thumbnail.png" preload="metadata">
+                    <source src="video/gameplay.mp4" type="video/mp4">
+                    Tu navegador no soporta video.
+                </video>
+            </div>
+        </div>
+
+
+        <!-- BOTÓN DESCARGA -->
+        <div class="download-section">
+            <a href="https://unadvirtualedu-my.sharepoint.com/:f:/g/personal/avarangor_unadvirtual_edu_co/Em2VURLqDSdJsSpafe5zaAEBSj_qQed0gisTnXz4_fZueQ?e=c6da9a" 
+               target="_blank" class="btn btn-download" style="font-size:28px;padding:24px 48px;">
+                DESCARGAR JUEGO AHORA
+            </a>
+            <p style="margin-top:20px;color:#333;font-weight:bold;font-size:18px;">
+                Windows • 100% Gratuito • Hecho con mucho amor
+            </p>
+        </div>
+    </div>
+</section>
+   
+    <section id="gallery" class="gallery-section">
+        <div class="container">
+            <div class="section-title-wrapper"><h2 class="section-title">GALERÍA</h2></div>
+            <div class="gallery-grid">
+                <div class="gallery-item"><img src="img/inicio.png" alt="Banner oficial"></div>
+                <div class="gallery-item"><img src="img/banner.png" alt="Captura"></div>
+                <div class="gallery-item"><img src="img/historia.png" alt="Concept art"></div>
+                <div class="gallery-item"><img src="img/dia.png" alt="Personajes"></div>
+                <div class="gallery-item"><img src="img/atardecer.png" alt="Modo noche"></div>
+                <div class="gallery-item"><img src="img/anochecer.png" alt="Power-up"></div>
+            </div>
+            <p style="text-align:center;margin-top:40px;font-size:18px;color:#333;">
+                ¡Más capturas y arte próximamente!
+            </p>
+        </div>
+    </section>
+
+    
+
+    <section id="credits" class="credits-section">
+        <div class="container">
+            <div class="section-title-wrapper"><h2 class="section-title">CRÉDITOS</h2></div>
+            <div class="credits-grid">
+                <div class="credit-card"><h3>Steicy Avilez Plaza</h3><p>
+                    • Arte 
+                    <br>• Pixel Art 
+                    <br>• Diseño Visual 
+                    <br>• Sonido</p></div>
+                    <div class="credit-card"><h3>Alexa Victoria Arango Rios</h3><p> • Narrativa <br>• Prototipo <br>• Coordinación</p></div>
+                <div class="credit-card"><h3>Yilmar Alexis Salazar García</h3><p>• Programación Web <br>• Edición Video <br>• Mecánicas</p></div>
+                <div class="credit-card"><h3>Juan David Borja Martínez</h3><p>• Documentación <br>• Mapas Mentales <br>• Interacción</p></div>
+                <div class="credit-card"><h3>Luis Adrian Luna Moreno</h3><p>• Arquitectura <br>• UI <br>• Estructura</p></div>
+            </div>
+            <p class="credits-footer"><br>¡Gracias por volar con nosotros!</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2025 Boy on the Fly • Todos los derechos reservados</p>
+    </footer>
+
+    <script>
+        document.getElementById('menuToggle').addEventListener('click', function () {
+            document.getElementById('navLinks').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
